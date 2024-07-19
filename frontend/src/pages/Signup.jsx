@@ -6,10 +6,10 @@ const Signup = () => {
   const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value.trim()});
+    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
   const handleSubmit = async (e) => {
@@ -30,10 +30,10 @@ const Signup = () => {
 
       const data = await res.json();
       if (data.success === false) {
-      setLoading(false);
+        setLoading(false);
         return setErrorMessage(data.message);
       }
-      navigate("/sign-in")
+      navigate("/sign-in");
       setLoading(false);
     } catch (error) {
       setErrorMessage(error.message);
