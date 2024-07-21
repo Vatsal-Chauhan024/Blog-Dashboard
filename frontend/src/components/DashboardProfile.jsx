@@ -1,6 +1,6 @@
 import { Alert, Button, TextInput } from "flowbite-react";
 import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   getDownloadURL,
   getStorage,
@@ -10,14 +10,24 @@ import {
 import { app } from "../firebase";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import {
+  updateStart,
+  updateSuccess,
+  updateFailure,
+} from "../store/user/UserSlice";
 
 const DashboardProfile = () => {
-  const { currentUser } = useSelector((state) => state.user);
+  const { currentUser, error } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const filePickerRef = useRef(null);
   const [imageFileUploadProgress, setImageFileUploadProgress] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
+  const [imageFileUploading, setImageFileUploading] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
+  const dispatch = useDispatch();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -28,6 +38,7 @@ const DashboardProfile = () => {
   };
 
   const uploadImage = async () => {
+    setImageFileUploading(true);
     setImageFileUploadError(null);
     const storage = getStorage(app);
     const fileName = new Date().getTime() + imageFile.name;
@@ -45,10 +56,13 @@ const DashboardProfile = () => {
         setImageFileUploadProgress(null);
         setImageFile(null);
         setImageFileUrl(null);
+        setImageFileUploading(false);
       },
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setImageFileUrl(downloadURL);
+          setFormData({ ...formData, profilePicture: downloadURL });
+          setImageFileUploading(false);
         });
       }
     );
@@ -60,10 +74,53 @@ const DashboardProfile = () => {
     }
   }, [imageFile]);
 
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    setUpdateUserSuccess(null);
+    setErrorMsg(null);
+
+    e.preventDefault();
+
+    if (Object.keys(formData).length === 0) {
+      return;
+    }
+    if (imageFileUploading) {
+      return;
+    }
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`/api/user/update/${currentUser._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        dispatch(updateFailure(data.message));
+        setErrorMsg(data.message);
+      } else {
+        dispatch(updateSuccess(data));
+        setUpdateUserSuccess("User Updated SuccessFully");
+      }
+    } catch (error) {
+      dispatch(updateFailure(error.message));
+      setErrorMsg(error);
+    }
+  };
+
   return (
     <div className="max-w-lg mx-auto p-3 w-full">
       <h1 className="my-7 text-center font-semibold text-3xl">Profile</h1>
-      <form action="" className="flex flex-col gap-5">
+      <form action="" onSubmit={handleSubmit} className="flex flex-col gap-5">
         <input
           type="file"
           accept="image/*"
@@ -112,18 +169,21 @@ const DashboardProfile = () => {
           id="username"
           placeholder="username"
           defaultValue={currentUser.username}
+          onChange={handleChange}
         />
         <TextInput
           type="email"
           id="email"
           placeholder="email"
           defaultValue={currentUser.email}
+          onChange={handleChange}
         />
         <TextInput
           type="password"
           id="password"
           placeholder="password"
           defaultValue="********"
+          onChange={handleChange}
         />
 
         <Button type="submit" gradientDuoTone="purpleToBlue" outline>
@@ -135,6 +195,18 @@ const DashboardProfile = () => {
         <span>Delete Account</span>
         <span>Sign Out</span>
       </div>
+
+      {updateUserSuccess ? (
+        <Alert color="success" className="mt-3">
+          {updateUserSuccess}
+        </Alert>
+      ) : (
+        errorMsg && (
+          <Alert color="failure" className="mt-3">
+            {errorMsg}
+          </Alert>
+        )
+      )}
     </div>
   );
 };
