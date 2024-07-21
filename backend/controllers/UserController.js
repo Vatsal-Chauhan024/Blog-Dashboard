@@ -42,3 +42,16 @@ export const updateUser = async (req, res, next) => {
         next(error)
     }
 }
+
+
+export const deleteUser = async (req, res, next) =>{
+    if(req.user.id !== req.params.userId) {
+        return next(ErrorHandler(403, "Access Denied to Delete this user"))
+    }
+    try {
+        await User.findByIdAndDelete(req.params.userId)
+        res.status(200).json("User Deleted Successfully.")        
+    } catch (error) {
+        next(error)
+    }
+}
