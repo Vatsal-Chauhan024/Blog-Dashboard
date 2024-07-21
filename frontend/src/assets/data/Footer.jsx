@@ -53,26 +53,26 @@ export const FooterIconsArray = [
     {
         icon: BsFacebook,
         itemLink: "#",
-        hoverColor: "text-blue-500"
+        hoverColor: "hover:text-blue-500"
     },
     {
         icon: BsInstagram,
         itemLink: "#",
-        hoverColor: "text-pink-500"
+        hoverColor: "hover:text-pink-500"
     },
     {
         icon: BsTwitter,
         itemLink: "#",
-        hoverColor: "text-black"
+        hoverColor: "hover:text-black"
     },
     {
         icon: BsGithub,
         itemLink: "#",
-        hoverColor: "text-black"
+        hoverColor: "hover:text-black"
     },
     {
         icon: BsLinkedin,
         itemLink: "#",
-        hoverColor: "text-blue-500"
+        hoverColor: "hover:text-blue-500"
     }
 ]

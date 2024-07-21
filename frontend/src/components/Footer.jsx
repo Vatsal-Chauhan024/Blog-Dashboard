@@ -48,7 +48,7 @@ const FooterComponent = () => {
               key={i}
                 href={elem.itemLink}
                 icon={elem.icon}
-                className={`hover:${elem.hoverColor}`}
+                className={elem.hoverColor}
               />
             ))}
           </div>
