@@ -6,21 +6,21 @@ export const updateUser = async (req, res, next) => {
    if(req.user.id!== req.params.userId){
     return next(ErrorHandler(403, "Access Denied to Update the user."))
    }
-   if(req.body.password) {
+   if(req.body?.password) {
     if(req.body.password.length < 6){
         return next(ErrorHandler(400, "Password must be 6 characters"))
     }
     req.body.password = bcryptjs.hashSync(req.body.password, 10)
    }
     if(req.body.username){
-        if(req.body.username.length < 7 || req.body.username.length > 20){
+        if(req.body.username?.length < 7 || req.body.username?.length > 20){
             return next(ErrorHandler(400, "Username must be between 7 and 20 characters"))
         }
     }  
-    if(req.body.username !== req.body.username.toLowerCase()){
+    if(req.body.username !== req.body.username?.toLowerCase()){
         return next(ErrorHandler(400, "Username must be lowecase"))
     }
-    if(!req.body.username.match(/^[a-zA-Z0-9]+$/)){
+    if(!req.body.username?.match(/^[a-zA-Z0-9]+$/)){
         return next(ErrorHandler(400 , "Username can only contains letters and numbers"))
     }
     try {

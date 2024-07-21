@@ -4,11 +4,13 @@ import "./db/connnect.js"
 import cors from "cors"
 import UserRoutes from "./routes/UserRoutes.js"
 import AuthRoutes from "./routes/AuthRoute.js"
+import PostRoute from "./routes/PostRoute.js"
 import cookieParser from "cookie-parser"
 
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors())
+app.use("/api/post", PostRoute)
 app.use("/api/user", UserRoutes)
 app.use("/api/auth", AuthRoutes)
 
