@@ -21,9 +21,10 @@ import {
 } from "../store/user/UserSlice";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { SignOut } from "../utils/SignOut";
+import {Link} from "react-router-dom"
 
 const DashboardProfile = () => {
-  const { currentUser, error } = useSelector((state) => state.user);
+  const { currentUser, error, loading } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const filePickerRef = useRef(null);
@@ -220,6 +221,15 @@ const DashboardProfile = () => {
         <Button type="submit" gradientDuoTone="purpleToBlue" outline>
           Update
         </Button>
+        {
+          currentUser.isAdmin && (
+            <Link to = "/create-post">
+            <Button type="button" gradientDuoTone="purpleToPink" outline className="w-full">
+              Create a Post
+            </Button>
+            </Link>
+          )
+        }
       </form>
 
       <div className="text-red-500 *:cursor-pointer flex justify-between mt-5 *:font-semibold hover:*:underline *:underline-offset-2">
