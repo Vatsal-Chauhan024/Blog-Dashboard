@@ -28,7 +28,7 @@ const DashBoardUser = () => {
     if (currentUser.isAdmin) {
       fetchUsers();
     }
-  }, [currentUser._id]);
+  }, [users]);
 
 
 
@@ -48,7 +48,20 @@ const DashBoardUser = () => {
     }
   };
 
-  const handleDeleteUser = async () => {};
+  const handleDeleteUser = async () => {
+    try {
+      const res = await fetch(`/api/user/delete/${userIdToDelete}`, {
+        method: "DELETE",
+      })
+      const data = await res.json();
+      if(res.ok){
+        setUsers((prev) => prev.filter((user) => user.id !== userIdToDelete))
+        setShowModal(false)
+      }
+    } catch (error) {
+      console.log(error.message)
+    }
+  };
 
   return (
     <div className="w-full table-auto overflow-x-auto md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
