@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { Table } from "flowbite-react";
+import { Button, Table } from "flowbite-react";
 import { Link } from "react-router-dom";
 
 const DashboardPosts = () => {
   const { currentUser } = useSelector((state) => state.user);
   const [userPosts, setUserPosts] = useState([]);
+  const [showMore, setShowMore] = useState(true)
+
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -18,6 +20,9 @@ const DashboardPosts = () => {
         const data = await res.json();
         if (res.ok) {
           setUserPosts(data.posts);
+          if(data.length < 9){
+            setShowMore(false)
+          }
         }
       } catch (error) {
         console.log(error);
@@ -28,6 +33,31 @@ const DashboardPosts = () => {
       fetchPost();
     }
   }, [currentUser._id]);
+
+
+  const handleShowMore = async () => {
+    const startIndex = userPosts.length;
+
+    try {
+        const res = await fetch(
+            `/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`,
+            {
+              method: "GET",
+            }
+          );
+
+          const data = await res.json()
+
+          if(res.ok){
+            setUserPosts((prev) => [...prev, data.posts])
+            if(data.posts.length < 9){
+                setShowMore(false)
+            }
+          }
+    } catch (error) {
+        console.log(error.message)
+    }
+  }
 
   return (
     <div className='w-full table-auto overflow-x-auto md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500'>
@@ -91,6 +121,7 @@ const DashboardPosts = () => {
             </Table.Body>
           ))}
         </Table>
+        {showMore && <Button onClick={handleShowMore} outline color="blue" className="w-full mx-auto max-w-sm text-sm mt-3">Show More</Button>}
         </>
       ) : (
         <p>No Post Found...</p>
